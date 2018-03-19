@@ -41,7 +41,8 @@ export class HeroService {
     );
   }
    
-  private heroesUrl = 'api/heroes';
+  private heroesUrl = 'http://localhost:8080/api/heroes';
+
 
   constructor(
     private http: HttpClient,
