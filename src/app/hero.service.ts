@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { Hero } from './hero';
-import { HEROES } from './mock-heroes';
 import { MessageService } from './message.service';
 
 const httpOptions = {
@@ -16,13 +15,13 @@ export class HeroService {
   
   addHero (hero: Hero): Observable<Hero> {
     return this.http.post<Hero>(this.heroesUrl, hero, httpOptions).pipe(
-      tap((hero: Hero) => this.log(`added hero w/ id=${hero.id}`)),
+      tap((hero: Hero) => this.log(`added hero w/ id=${hero._id}`)),
       catchError(this.handleError<Hero>('addHero'))
     );
   }
 
   deleteHero (hero: Hero | number): Observable<Hero> {
-    const id = typeof hero === 'number' ? hero : hero.id;
+    const id = typeof hero === 'number' ? hero : hero._id;
     const url = `${this.heroesUrl}/${id}`;
 
     return this.http.delete<Hero>(url, httpOptions).pipe(
@@ -35,7 +34,7 @@ export class HeroService {
     if (!term.trim()) {  
       return of([]);
     }
-    return this.http.get<Hero[]>(`api/heroes/?name=${term}`).pipe(
+    return this.http.get<Hero[]>(`${this.heroesUrl}?name=${term}`).pipe(
       tap(_ => this.log(`found heroes matching "${term}"`)),
       catchError(this.handleError<Hero[]>('searchHeroes', []))
     );
@@ -57,7 +56,7 @@ export class HeroService {
       );
   } 
 
-  getHero(id: number): Observable<Hero> {
+  getHero(id: string): Observable<Hero> {
     const url = `${this.heroesUrl}/${id}`;
     return this.http.get<Hero>(url).pipe(
       tap(_ => this.log(`fetched hero id=${id}`)),
@@ -78,8 +77,9 @@ export class HeroService {
   }
 
   updateHero (hero: Hero): Observable<any> {
-   return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
-    tap(_ => this.log(`updated hero id=${hero.id}`)),
+   const url = `${this.heroesUrl}/${hero._id}`;
+   return this.http.put(url, hero, httpOptions).pipe(
+    tap(_ => this.log(`updated hero id=${hero._id}`)),
     catchError(this.handleError<any>('updateHero'))
    );
   }
